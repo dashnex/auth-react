@@ -1,7 +1,7 @@
 'use client';
 
 import { ButtonHTMLAttributes } from 'react';
-import { useAuth } from "@dashnex/auth";
+import { useAuth } from "../useAuth";
 
 interface LoginWithDashnexButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
