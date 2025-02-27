@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth, DashNexAuthProvider, DashNexAuthClientConfig, useAuthLocalStorage, LoginWithDashnexButton } from "@dashnex/auth";
+import { useAuth, DashNexAuthProvider, DashNexAuthClientConfig, useAuthLocalStorage, LoginWithDashnexButton } from "@dashnex.com/auth-react";
 
 
 export default function RootLayout() {

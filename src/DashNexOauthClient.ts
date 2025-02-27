@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { createHash } from 'crypto';
+import { createHash } from 'crypto-browserify';
 
 export type DashnexLicense = {
   product: string;
