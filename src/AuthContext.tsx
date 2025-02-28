@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useEffect, useState } from 'react';
-import { DashNexOauthClient, DashnexUser, DashNexAuthClientConfig } from './DashNexOauthClient';
+import { DashnexUser, DashNexAuthClientConfig } from '.';
 import { useDashNexAuth } from './useDashNexAuth';
 
 type AuthContextType = {
@@ -39,21 +39,9 @@ export const DashNexAuthProvider = ({ children, config }: AuthProviderProps) => 
         const code = urlParams.get('code');
 
         if (code) {
-          const token = await exchangeCodeForToken(code);
+          await exchangeCodeForToken(code);
           window.history.replaceState({}, document.title, window.location.pathname);
         } 
-
-        // while(!isAuthenticated) {
-        //   console.log('not ready');
-        // }
-        // const currentUser = await getCurrentUser();
-        // setUser(currentUser);
-        // setIsLoading(false);
-
-        // if (code) {
-        //   // Clean up URL
-        //   window.history.replaceState({}, document.title, window.location.pathname);
-        // }
       } catch (error) {
         console.warn('Auth check failed', error);
         setUser(null);

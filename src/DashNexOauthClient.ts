@@ -1,48 +1,6 @@
 import { Buffer } from 'buffer';
-import { createHash } from 'crypto-browserify';
-
-export type DashnexLicense = {
-  product: string;
-  activationLimit: number;
-  activatedCount: number;
-};
-
-export type DashnexUser = {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  referralHash: string;
-  canImpersonate: boolean;
-  licenses: DashnexLicense[];
-};
-
-export type ActivationStatus = {
-  product: string;
-  activationLimit: number;
-  activatedCount: number;
-  activations: {
-    id: number;
-    domain: string;
-  }[];
-};
-
-export type TokenStorage = {
-  accessToken: string | null;
-  refreshToken: string | null;
-  setTokens: (access: string, refresh: string) => void;
-  setAccessToken: (token: string) => void;
-  setRefreshToken: (token: string) => void;
-  clearTokens: () => void;
-};
-
-export type DashNexAuthClientConfig = {
-  clientId: string;
-  clientSecret?: string;
-  redirectUri: string;
-  baseUrl?: string;
-  tokenStorage: TokenStorage
-};
+import { sha256 } from 'sha.js';
+import type { TokenStorage, DashNexAuthClientConfig , DashnexUser } from './index';
 
 export class DashNexOauthClient {
   private clientId: string;
@@ -52,8 +10,6 @@ export class DashNexOauthClient {
   private codeVerifier: string | null;
   private tokenStorage: TokenStorage;
 
-  // private isAuthenticated: boolean;
-
   constructor(config: DashNexAuthClientConfig) {
     this.clientId = config.clientId;
     this.clientSecret = config.clientSecret || null;
@@ -61,8 +17,6 @@ export class DashNexOauthClient {
     this.baseUrl = config.baseUrl || 'https://dashnex.com';
     this.codeVerifier = null;
     this.tokenStorage = config.tokenStorage;
-
-    // this.isAuthenticated = !!this.tokenStorage.accessToken;
   }
 
   get isAuthenticated() : boolean {
@@ -140,35 +94,6 @@ export class DashNexOauthClient {
     return this.tokenStorage.clearTokens();
   }
 
-  // Get activation status for a product
-  async getActivationStatus(productCode: string): Promise<ActivationStatus> {
-    return this.request(`/api/oauth/v2/activations/${productCode}/status`);
-  }
-
-  // Activate a domain for a product
-  async activateDomain(productCode: string, domain: string): Promise<{ id: number }> {
-    return this.request(`/api/oauth/v2/activations/${productCode}/activate`, {
-      method: 'POST',
-      body: JSON.stringify({ domain }),
-    });
-  }
-
-  // Revoke activation by ID
-  async revokeActivation(activationId: number): Promise<void> {
-    await this.request(`/api/oauth/v2/activations/${activationId}/revoke`, {
-      method: 'DELETE',
-    });
-  }
-
-  // Revoke activation by domain
-  async revokeActivationByDomain(productCode: string, domain: string): Promise<{ id: number }> {
-    return this.request(`/api/oauth/v2/activations/${productCode}/domain/revoke`, {
-      method: 'DELETE',
-      body: JSON.stringify({ domain }),
-    });
-  }
-
-
   // Helper method for making authenticated requests
   private async request(path: string, options: RequestInit = {}): Promise<any> {
     const accessToken = this.tokenStorage.accessToken;
@@ -229,15 +154,24 @@ export class DashNexOauthClient {
 
   // Generate random state for OAuth flow
   private generateRandomState(): string {
-    return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    // Generate 16 random bytes using custom random generation
+    const bytes = new Uint8Array(16);
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+    return Array.from(bytes)
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
   }
 
   // Generate random code verifier for PKCE
   private generateCodeVerifier(): string {
+    // Generate 32 random bytes using custom random generation
     const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
+    for (let i = 0; i < array.length; i++) {
+      array[i] = Math.floor(Math.random() * 256);
+    }
+    
     return Buffer.from(array)
       .toString('base64')
       .replace(/\+/g, '-')
@@ -247,12 +181,14 @@ export class DashNexOauthClient {
 
   // Generate code challenge from verifier
   private generateCodeChallenge(verifier: string): string {
-    const hash = createHash('sha256')
+
+    const hash = new sha256()
       .update(verifier)
       .digest('base64')
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=/g, '');
+      
     return hash;
   }
 } 

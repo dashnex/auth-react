@@ -10,7 +10,7 @@ export default function RootLayout() {
     clientSecret: process.env.NEXT_PUBLIC_DASHNEX_OAUTH_CLIENT_SECRET!,
     redirectUri: process.env.NEXT_PUBLIC_DASHNEX_OAUTH_REDIRECT_URI!,
     baseUrl: process.env.NEXT_PUBLIC_DASHNEX_URI,
-    tokenStorage: useAuthLocalStorage(),
+    tokenStorage: useAuthLocalStorage('your-app-name'),
   };
 
   return (

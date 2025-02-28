@@ -1,14 +1,14 @@
 'use client';
 
-import { useLocalStorage } from '@dashnex.com/react-hooks';
+import { useLocalStorage } from 'usehooks-ts';
 
-export const useAuthLocalStorage = () => {
+export const useAuthLocalStorage = (prefix: string) => {
   const [accessToken, setAccessToken, removeAccessToken] = useLocalStorage<string | null>(
-    'dashnex_access_token',
+    `${prefix}_access_token`,
     null
   );
   const [refreshToken, setRefreshToken, removeRefreshToken] = useLocalStorage<string | null>(
-    'dashnex_refresh_token',
+    `${prefix}_refresh_token`,
     null
   );
 

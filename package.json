@@ -1,16 +1,50 @@
 {
   "name": "@dashnex.com/auth-react",
-  "version": "0.0.3",
+  "version": "0.0.11",
+  "license": "MIT",
+  "author": "dashnex",
+  "description": "DashNex React Auth",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dashnex/auth-react.git"
   },
-  "devDependencies": {
-    "@dashnex.com/react-hooks": "^0.0.3",
-    "react": "^18.0.0",
-    "buffer": "^6.0.3",
-    "crypto-browserify": "^3.12.1"
+  "keywords": [
+    "dashnex",
+    "dashnex.com",
+    "typescript",
+    "react",
+    "auth"
+  ],
+  "scripts": {
+    "build": "tsup"
   },
-  "main": "index.ts",
-  "license": "MIT"
+  "dependencies": {
+    "sha.js": "^2.4.11",
+    "usehooks-ts": "^3.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.10",
+    "@types/sha.js": "^2.4.4",
+    "buffer": "^6.0.3",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/dashnex/auth-react/issues"
+  }
 }
