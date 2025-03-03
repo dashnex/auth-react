@@ -3,14 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DashNex OAuth Example</title>
-    <script type="importmap">
-        {
-          "imports": {
-            "@dashnex/auth-react": "../dist"
-          }
-        }
-      </script>
+    <title>DashNex OAuth2 Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/@dashnex.com/auth-react@latest/dist/browser.global.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,19 +37,18 @@
     </div>
 
     <div id="authenticatedSection" style="display: none;">
-        <button id="getUserBtn" class="button">Get User Info</button>
         <button id="logoutBtn" class="button">Logout</button>
         <div id="userInfo"></div>
     </div>
 
-    <script type="module">
-        import { DashNexOauthClient } from '@dashnex/auth-react';
-        import { createAuthLocalStorage } from '../dist/storage/authLocalStorage.mjs';
+    <script>
+        const { DashNexOauthClient, createAuthLocalStorage } = DashNex;
 
         // Initialize the OAuth client
-        const client = new DashNexOauthClient({
-            clientId: 'YOUR_CLIENT_ID',
-            redirectUri: 'http://localhost:3000/example.html',
+        var client = new DashNexOauthClient({
+            clientId: 'test_client_id',
+            baseUrl: 'https://test.dashnex.com',
+            redirectUri: 'http://127.0.0.1:8000/example.html',
             tokenStorage: createAuthLocalStorage('my-app-name'),
         });
 
@@ -78,13 +71,21 @@
         };
 
         // Update UI based on authentication state
-        const updateUI = () => {
+        const updateUI = async () => {
             const loginSection = document.getElementById('loginSection');
             const authenticatedSection = document.getElementById('authenticatedSection');
             
-            if (client.isAuthenticated) {
+            if (client.isAuthenticated()) {
                 loginSection.style.display = 'none';
                 authenticatedSection.style.display = 'block';
+
+                try {
+                    const user = await client.getCurrentUser();
+                    document.getElementById('userInfo').innerHTML = `<pre>${JSON.stringify(user, null, 2)}</pre>`;
+                } catch (error) {
+                    console.error('Error fetching user:', error);
+                    alert('Failed to fetch user information');
+                }
             } else {
                 loginSection.style.display = 'block';
                 authenticatedSection.style.display = 'none';
@@ -95,17 +96,6 @@
         // Event Listeners
         document.getElementById('loginBtn').addEventListener('click', () => {
             window.location.href = client.getAuthorizationUrl();
-        });
-
-        document.getElementById('getUserBtn').addEventListener('click', async () => {
-            try {
-                const user = await client.getCurrentUser();
-                document.getElementById('userInfo').innerHTML = 
-                    `<pre>${JSON.stringify(user, null, 2)}</pre>`;
-            } catch (error) {
-                console.error('Error fetching user:', error);
-                alert('Failed to fetch user information');
-            }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {

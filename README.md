@@ -9,111 +9,171 @@ A TypeScript OAuth 2.0 client implementation for DashNex authentication, support
 - PKCE Support for Enhanced Security
 - Token Storage Management
 - TypeScript Support
+- React Hooks and Components
 - Configurable Base URL for testing
+- Automatic Token Refresh
+
+## Get OAuth Client credentials
+
+1. Create a product on DashNex (Hosting app), create Variant: Access, Hosting app, 1
+2. Go to Product Info -> OAuth clients, Create client. Set Redirect URI, choose Variant, Grant type: Authorization code
 
 ## Installation
 
 ```bash
 npm install @dashnex.com/auth-react
+# or
 yarn add @dashnex.com/auth-react
 ```
 
-## Quick Start with JavaScript
+## Usage with React
+
+### Basic Setup
+
+1. First, wrap your application with the `DashNexAuthProvider`:
 
 ```typescript
-import { DashNexOauthClient } from '@dashnex.com/auth-react';
+import { DashNexAuthProvider, useAuthLocalStorage } from "@dashnex.com/auth-react";
 
-const client = new DashNexOauthClient({
-  clientId: 'your-client-id',
-  clientSecret: 'your-client-secret', // Optional for PKCE flow
-  redirectUri: 'https://your-app.com/callback',
-  baseUrl: 'https://dashnex.com', // Optional, defaults to https://dashnex.com
-  tokenStorage: createAuthLocalStorage('your-app-name'), // use your own unique name
-});
-
-function startAuthentication() {
-    window.location.href = client.getAuthorizationUrl();
-}
-
-function logout() {
-    client.logout();
-}
-
-// if we are redirected back from DashNex with a code
-const urlParams = new URLSearchParams(window.location.search);
-const code = urlParams.get('code');
-
-if (code) {
-    await exchangeCodeForToken(code);
-    window.history.replaceState({}, document.title, window.location.pathname);
-
-    const user = await client.getCurrentUser();
-    // Do something with the user
-
-    // Check authentication status
-    const isAuthenticated = client.isAuthenticated;
-} 
-
-```
-
-## Quick Start with React
-
-```typescript
-import { useAuth, DashNexAuthProvider, DashNexAuthClientConfig, useAuthLocalStorage, LoginWithDashnexButton } from "@dashnex.com/auth-react";
-
-
-export default function RootLayout() {
-
-  const config: DashNexAuthClientConfig = {
-    clientId: process.env.NEXT_PUBLIC_DASHNEX_OAUTH_CLIENT_ID!,
-    clientSecret: process.env.NEXT_PUBLIC_DASHNEX_OAUTH_CLIENT_SECRET!,
-    redirectUri: process.env.NEXT_PUBLIC_DASHNEX_OAUTH_REDIRECT_URI!,
-    baseUrl: process.env.NEXT_PUBLIC_DASHNEX_URI,
-    tokenStorage: useAuthLocalStorage('your-app-name'), // use your own unique name
+export default function App() {
+  const config = {
+    clientId: "your-client-id",
+    redirectUri: "https://your-app.com/callback",
+    baseUrl: "https://dashnex.com", // Optional, defaults to https://dashnex.com
+    tokenStorage: useAuthLocalStorage("your-app-name"), // Use your own unique name
   };
 
   return (
-    <html lang="en">
-      <body>
-        <DashNexAuthProvider config={config}>
-          <Home/>
-        </DashNexAuthProvider>
-      </body>
-    </html>
+    <DashNexAuthProvider config={config}>
+      <YourApp />
+    </DashNexAuthProvider>
   );
 }
+```
 
-export function Home() {
+2. Use the `useAuth` hook in your components:
+
+```typescript
+import { useAuth, LoginWithDashnexButton } from "@dashnex.com/auth-react";
+
+function LoginPage() {
   const { user, isLoading, login, logout } = useAuth();
 
   if (isLoading) {
-    return <div>Loading....</div>
+    return <div>Loading...</div>;
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div>
       {user ? (
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-3xl font-bold text-gray-800">Welcome, {user.firstName}</h1>
-          <a href="" onClick={logout}>Logout</a>
+        <div>
+          <h1>Welcome, {user.firstName}</h1>
+          <button onClick={logout}>Logout</button>
         </div>
       ) : (
-        <div className="bg-white p-8 rounded-lg shadow-md flex flex-col items-center">
-          <LoginWithDashnexButton /> or <a onClick={login}>Login directly</a>
+        <div>
+          <LoginWithDashnexButton />
+          {/* or */}
+          <button onClick={login}>Login with DashNex</button>
         </div>
       )}
-    </main>
+    </div>
   );
 }
-
 ```
 
-## Configuration
+## Usage with Vanilla JavaScript
+
+1. Include the library in your HTML:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@dashnex.com/auth-react@latest/dist/browser.global.js"></script>
+```
+
+2. Initialize and use the client:
+
+```javascript
+const { DashNexOauthClient, createAuthLocalStorage } = DashNex;
+
+// Initialize the client
+const client = new DashNexOauthClient({
+  clientId: "your-client-id",
+  redirectUri: "https://your-app.com/callback",
+  tokenStorage: createAuthLocalStorage("your-app-name"),
+  baseUrl: "https://dashnex.com", // Optional
+});
+
+// Handle login
+function startLogin() {
+  window.location.href = client.getAuthorizationUrl();
+}
+
+// Handle logout
+async function logout() {
+  await client.logout();
+}
+
+// Handle the OAuth callback
+const urlParams = new URLSearchParams(window.location.search);
+const code = urlParams.get("code");
+
+if (code) {
+  try {
+    await client.exchangeCodeForToken(code);
+    // Clean up the URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    // Get user information
+    const user = await client.getCurrentUser();
+    console.log("Logged in user:", user);
+  } catch (error) {
+    console.error("Authentication error:", error);
+  }
+}
+```
+
+## Configuration Options
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | clientId | string | Yes | Your OAuth client ID |
 | clientSecret | string | No | Your OAuth client secret (not required for PKCE flow) |
 | redirectUri | string | Yes | Your application's callback URL |
-| baseUrl | string | No | DashNex API base URL |
+| baseUrl | string | No | DashNex API base URL (defaults to https://dashnex.com) |
 | tokenStorage | TokenStorage | Yes | Implementation for token storage |
+
+## Token Storage
+
+The library provides two token storage implementations:
+
+1. `useAuthLocalStorage` - For React applications using localStorage
+2. `createAuthLocalStorage` - For Vanilla JavaScript applications using localStorage
+
+Both implementations handle:
+- Access token storage
+- Refresh token storage
+- PKCE code verifier storage
+- State parameter storage for security
+
+## Development
+
+```bash
+npm run serve
+# or
+yarn serve
+# or
+bun run serve
+```
+
+Open `example.html` file and set up your OAuth client.
+
+## Security Considerations
+
+- The library supports PKCE (Proof Key for Code Exchange) for enhanced security
+- All tokens are stored securely in localStorage with a unique prefix
+- State parameters are used to prevent CSRF attacks
+- Automatic token refresh is handled internally
+
+## License
+
+MIT License - See LICENSE file for details

@@ -3,7 +3,10 @@ import { DashNexAuthProvider } from "./AuthContext";
 import { useAuthLocalStorage } from "./storage";
 import { LoginWithDashnexButton } from "./components/LoginWithDashnexButton";
 
-export { useAuth, DashNexAuthProvider, useAuthLocalStorage, LoginWithDashnexButton };
+import { useDashNexClient } from './useDashNexClient';
+import { DashNexOauthClient } from './DashNexOauthClient';
+
+export { useAuth, useDashNexClient, DashNexAuthProvider, useAuthLocalStorage, LoginWithDashnexButton, DashNexOauthClient };
 
 export type DashnexLicense = {
   product: string;
@@ -24,9 +27,13 @@ export type DashnexUser = {
 export type TokenStorage = {
   accessToken: string | null;
   refreshToken: string | null;
+  codeVerifier?: string | null;
   setTokens: (access: string, refresh: string) => void;
   setAccessToken: (token: string) => void;
   setRefreshToken: (token: string) => void;
+  setCodeVerifier?: (verifier: string | null) => void;
+  state?: string | null;
+  setState?: (state: string | null) => void;
   clearTokens: () => void;
 };
 
