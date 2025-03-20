@@ -1,6 +1,0 @@
-name = "dashnex-example"
-compatibility_date = "2025-03-06"
-
-kv_namespaces = [
-  { binding = "DASHNEX_KV", id = "f79c81fd41454308b41d7c3d1a066da9" }
-]

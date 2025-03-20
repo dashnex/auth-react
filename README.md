@@ -1,3 +1,4 @@
+
 # DashNex OAuth Client
 
 A TypeScript OAuth 2.0 client implementation for DashNex authentication, supporting both standard OAuth flow and PKCE (Proof Key for Code Exchange).
@@ -112,26 +113,21 @@ async function logout() {
   await client.logout();
 }
 
-if (client.isAuthenticated) {
-  const user = await client.getCurrentUser();
-  console.log("Logged in user:", user);
-} else {
-  // Handle the OAuth callback
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get("code");
+// Handle the OAuth callback
+const urlParams = new URLSearchParams(window.location.search);
+const code = urlParams.get("code");
 
-  if (code) {
-    try {
-      await client.exchangeCodeForToken(code);
-      // Clean up the URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      
-      // Get user information
-      const user = await client.getCurrentUser();
-      console.log("Logged in user:", user);
-    } catch (error) {
-      console.error("Authentication error:", error);
-    }
+if (code) {
+  try {
+    await client.exchangeCodeForToken(code);
+    // Clean up the URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    // Get user information
+    const user = await client.getCurrentUser();
+    console.log("Logged in user:", user);
+  } catch (error) {
+    console.error("Authentication error:", error);
   }
 }
 ```
@@ -148,96 +144,16 @@ if (client.isAuthenticated) {
 
 ## Token Storage
 
-The library provides three token storage implementations:
+The library provides two token storage implementations:
 
 1. `useAuthLocalStorage` - For React applications using localStorage
 2. `createAuthLocalStorage` - For Vanilla JavaScript applications using localStorage
-3. `createCloudflareKvStorage` - For Cloudflare Workers using KV storage
 
 Both implementations handle:
 - Access token storage
 - Refresh token storage
 - PKCE code verifier storage
 - State parameter storage for security
-
-### Using with Cloudflare Workers
-
-To use the DashNex OAuth client with Cloudflare Workers, you'll need to:
-
-1. Create a KV namespace in your Cloudflare account
-2. Bind the KV namespace to your worker
-3. Set up the required environment variables
-
-Here's an example worker implementation:
-
-```typescript
-import { DashNexOauthClient } from '@dashnex.com/auth-react';
-import { createCloudflareKvStorage } from '@dashnex.com/auth-react/storage/cloudflareKvStorage';
-
-export interface Env {
-  DASHNEX_KV: KVNamespace;
-  DASHNEX_CLIENT_ID: string;
-  DASHNEX_CLIENT_SECRET: string;
-  DASHNEX_REDIRECT_URI: string;
-}
-
-export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const client = new DashNexOauthClient({
-      clientId: env.DASHNEX_CLIENT_ID,
-      clientSecret: env.DASHNEX_CLIENT_SECRET,
-      redirectUri: env.DASHNEX_REDIRECT_URI,
-      tokenStorage: createCloudflareKvStorage({
-        namespace: env.DASHNEX_KV,
-        prefix: 'dashnex_example'
-      })
-    });
-
-    // Handle your routes here
-    // See docs/example-worker.ts for a complete example
-  }
-};
-```
-
-To deploy this worker:
-
-1. Create a KV namespace:
-```bash
-wrangler kv:namespace create "DASHNEX_KV"
-```
-
-2. Add the KV binding to your wrangler.toml:
-```toml
-kv_namespaces = [
-  { binding = "DASHNEX_KV", id = "your-kv-namespace-id" }
-]
-```
-
-3. Set up your environment variables:
-```bash
-wrangler secret put DASHNEX_CLIENT_ID
-wrangler secret put DASHNEX_CLIENT_SECRET
-wrangler secret put DASHNEX_REDIRECT_URI
-```
-
-4. Deploy your worker:
-```bash
-wrangler deploy
-```
-
-A complete example worker implementation can be found in `docs/example-worker.ts`.
-
-### Development Scripts
-
-The package includes two scripts for worker development:
-
-```bash
-# Start a local development server for the worker
-npm run worker:dev
-
-# Deploy the example worker
-npm run worker:deploy
-```
 
 ## Development
 
