@@ -25,10 +25,10 @@ export type DashnexUser = {
 };
 
 export type TokenStorage = {
-  getAccessToken: () => Promise<string | null>;
-  getRefreshToken: () => Promise<string | null>;
-  getCodeVerifier: () => Promise<string | null>;
-  getState: () => Promise<string | null>;
+  getAccessToken: () => string | null;
+  getRefreshToken: () => string | null;
+  getCodeVerifier: () => string | null;
+  getState: () => string | null;
   setTokens: (access: string, refresh: string) => void;
   setAccessToken: (token: string) => void;
   setRefreshToken: (token: string) => void;

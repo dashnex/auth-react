@@ -107,6 +107,7 @@ export class DashNexOauthClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'DNX'
       },
       body: new URLSearchParams(params).toString(),
     });
@@ -154,6 +155,7 @@ export class DashNexOauthClient {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
+        'User-Agent': 'DNX',
         ...options.headers,
       },
     });
@@ -181,6 +183,7 @@ export class DashNexOauthClient {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'User-Agent': 'DNX'
       },
       body: JSON.stringify({
         grant_type: 'refresh_token',
