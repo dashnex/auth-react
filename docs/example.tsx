@@ -25,7 +25,7 @@ export default function RootLayout() {
 }
 
 export function Home() {
-  const { user, isLoading, login, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, login, logout } = useAuth();
 
   if (isLoading) {
     return <div>Loading....</div>
@@ -33,7 +33,7 @@ export function Home() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100">
-      {user ? (
+      { user ? (
         <div className="bg-white p-8 rounded-lg shadow-md">
           <h1 className="text-3xl font-bold text-gray-800">Welcome, {user.firstName}</h1>
           <a href="" onClick={logout}>Logout</a>

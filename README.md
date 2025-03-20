@@ -57,7 +57,7 @@ export default function App() {
 import { useAuth, LoginWithDashnexButton } from "@dashnex.com/auth-react";
 
 function LoginPage() {
-  const { user, isLoading, login, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, login, logout } = useAuth();
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -125,6 +125,7 @@ if (code) {
     
     // Get user information
     const user = await client.getCurrentUser();
+    
     console.log("Logged in user:", user);
   } catch (error) {
     console.error("Authentication error:", error);

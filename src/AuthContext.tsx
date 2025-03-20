@@ -29,6 +29,7 @@ export const DashNexAuthProvider = ({ children, config }: AuthProviderProps) => 
   const { client } = useDashNexClient(config);
   const [ user, setUser ] = useState<DashnexUser | null>(null);
   const [ isLoading, setIsLoading ] = useState(true);
+  const [ isAuthenticated, setIsAuthenticated ] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -41,12 +42,14 @@ export const DashNexAuthProvider = ({ children, config }: AuthProviderProps) => 
           await client.exchangeCodeForToken(code);
           window.history.replaceState({}, document.title, window.location.pathname);
           setIsLoading(false);
+          setIsAuthenticated(true);
         }  
         
       } catch (error) {
         console.warn('Auth check failed', error);
         setUser(null);
         setIsLoading(false);
+        setIsAuthenticated(false);
       } 
     };
 
@@ -60,14 +63,14 @@ export const DashNexAuthProvider = ({ children, config }: AuthProviderProps) => 
       setIsLoading(false);
     }
 
-    if (client.isAuthenticated) {
+    if (isAuthenticated) {
       if (!user) {
         loadUser();
       }
     } else {
       setIsLoading(false);
     }
-  }, [client.isAuthenticated])
+  }, [isAuthenticated])
 
   const login = () => {
     window.location.href = client.getAuthorizationUrl();;
@@ -79,7 +82,7 @@ export const DashNexAuthProvider = ({ children, config }: AuthProviderProps) => 
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: client.isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

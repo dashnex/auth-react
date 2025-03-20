@@ -34,10 +34,10 @@ const createAuthLocalStorage = (prefix: string) => {
 
     // Base storage object
     const storage: any = {
-        get accessToken() { return getAccessToken(); },
-        get refreshToken() { return getRefreshToken() },
-        get codeVerifier() { return getCodeVerifier() },
-        get state() { return getState() },
+        getAccessToken,
+        getRefreshToken,
+        getCodeVerifier,
+        getState,
         setCodeVerifier,
         setAccessToken,
         setRefreshToken,

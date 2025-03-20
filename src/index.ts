@@ -25,14 +25,14 @@ export type DashnexUser = {
 };
 
 export type TokenStorage = {
-  accessToken: string | null;
-  refreshToken: string | null;
-  codeVerifier?: string | null;
+  getAccessToken: () => Promise<string | null>;
+  getRefreshToken: () => Promise<string | null>;
+  getCodeVerifier: () => Promise<string | null>;
+  getState: () => Promise<string | null>;
   setTokens: (access: string, refresh: string) => void;
   setAccessToken: (token: string) => void;
   setRefreshToken: (token: string) => void;
   setCodeVerifier?: (verifier: string | null) => void;
-  state?: string | null;
   setState?: (state: string | null) => void;
   clearTokens: () => void;
 };

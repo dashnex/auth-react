@@ -46,9 +46,9 @@
 
         // Initialize the OAuth client
         var client = new DashNexOauthClient({
-            clientId: 'test_client_id',
-            baseUrl: 'https://test.dashnex.com',
-            redirectUri: 'http://127.0.0.1:8000/example.html',
+            clientId: 'your-client-id',
+            baseUrl: 'https://dashnex.com',
+            redirectUri: 'http://127.0.0.1:8080/example.html',
             tokenStorage: createAuthLocalStorage('my-app-name'),
         });
 
@@ -74,8 +74,9 @@
         const updateUI = async () => {
             const loginSection = document.getElementById('loginSection');
             const authenticatedSection = document.getElementById('authenticatedSection');
+            const isAuthenticated = await client.isAuthenticated();
             
-            if (client.isAuthenticated()) {
+            if (isAuthenticated) {
                 loginSection.style.display = 'none';
                 authenticatedSection.style.display = 'block';
 

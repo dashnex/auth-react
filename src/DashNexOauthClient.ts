@@ -41,8 +41,8 @@ export class DashNexOauthClient {
     // this.logout = this.logout.bind(this);
   }
 
-  get isAuthenticated(): boolean {
-    return !!this.tokenStorage.accessToken;
+  async isAuthenticated(): Promise<boolean> {
+    return !!(await this.tokenStorage.getAccessToken());
   }
 
   // Generate authorization URL for OAuth flow
@@ -93,7 +93,7 @@ export class DashNexOauthClient {
     }
 
     // Add code verifier if available in storage
-    const storedCodeVerifier = this.tokenStorage.codeVerifier;
+    const storedCodeVerifier = await this.tokenStorage.getCodeVerifier();
     if (storedCodeVerifier) {
       params.code_verifier = storedCodeVerifier;
     }
@@ -119,7 +119,8 @@ export class DashNexOauthClient {
     this.tokenStorage.setTokens(data.access_token, data.refresh_token);
     
     if (data.state && this.tokenStorage.setState) {
-      if (this.tokenStorage.state !== data.state) {
+      const state = await this.tokenStorage.getState();
+      if (state !== data.state) {
         throw new Error('State mismatch!');
       }
       this.tokenStorage.setState(null);
@@ -142,7 +143,7 @@ export class DashNexOauthClient {
 
   // Helper method for making authenticated requests
   private async request(path: string, options: RequestInit = {}): Promise<any> {
-    const accessToken = this.tokenStorage.accessToken;
+    const accessToken = await this.tokenStorage.getAccessToken();
 
     if (!accessToken) {
       throw new Error('Not authenticated.');
@@ -157,7 +158,7 @@ export class DashNexOauthClient {
       },
     });
 
-    if (response.status === 401 && this.tokenStorage.refreshToken) {
+    if (response.status === 401) {
       await this.refreshAccessToken();
       return this.request(path, options);
     }
@@ -171,7 +172,7 @@ export class DashNexOauthClient {
 
   // Refresh access token using refresh token
   private async refreshAccessToken(): Promise<void> {
-    const refreshToken = this.tokenStorage.refreshToken;
+    const refreshToken = await this.tokenStorage.getRefreshToken();
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
